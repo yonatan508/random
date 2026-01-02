@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מערכת נתונים אחודה - גרסת השקה</title>
+    <style>
+        :root {
+            --brand-deep: #0f172a;
+            --brand-primary: #3b82f6;
+            --brand-light: #eff6ff;
+            --border-subtle: #e2e8f0;
+            --success: #10b981;
+            --text-main: #334155;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: #f1f5f9;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* סרגל גלילה מעוצב */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+        /* מסך ההשקה */
+        #launch-screen {
+            text-align: center;
+            background: white;
+            padding: 50px;
+            border-radius: 24px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 90%;
+            transition: opacity 0.5s ease;
+        }
+
+        .launch-btn {
+            background: var(--brand-primary);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3);
+            transition: all 0.2s;
+        }
+
+        .launch-btn:hover { background: #2563eb; transform: translateY(-2px); }
+
+        /* תוכן האפליקציה המרכזי */
+        #main-app {
+            display: none; /* מוסתר בהתחלה */
+            width: 100%;
+            max-width: 1000px;
+            padding: 20px;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .master-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-subtle);
+            margin-bottom: 24px;
+        }
+
+        .app-header {
+            background: var(--brand-deep);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        table { width: 100%; border-collapse: collapse; background: white; }
+        th { background: #f8fafc; padding: 16px; text-align: right; border-bottom: 2px solid var(--brand-light); color: var(--brand-deep); font-size: 0.9rem; }
+        td { padding: 16px; border-bottom: 1px solid var(--border-subtle); border-left: 1px solid #f8fafc; }
+        
+        tr.active-row { 
+            background-color: var(--brand-light); 
+            border-right: 5px solid var(--brand-primary); 
+        }
+
+        /* חלון הנתונים המתרחב */
+        .detail-container {
+            display: none;
+            background: white;
+            border-radius: 16px;
+            border: 1px solid var(--border-subtle);
+            box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+            resize: vertical; /* שינוי גודל ידני */
+            overflow: hidden;
+            min-height: 300px;
+        }
+
+        .detail-header {
+            padding: 16px 24px;
+            background: #fff;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .iframe-scroll-area {
+            height: calc(100% - 60px);
+            overflow: auto;
+        }
+
+        iframe { width: 100%; height: 600px; border: none; }
+
+        .copy-badge {
+            background: var(--success);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="launch-screen">
+        <div style="font-size: 3rem; margin-bottom: 20px;">📊</div>
+        <h2 style="color: var(--brand-deep)">מערכת ניתוח נתונים</h2>
+        <p style="color: #64748b; margin-bottom: 30px;">לחץ על הכפתור כדי לטעון את מסדי הנתונים המסוננים.</p>
+        <button class="launch-btn" onclick="launchApp()">הפעל תוכנית</button>
+    </div>
+
+    <div id="main-app">
+        <div class="master-card">
+            <div class="app-header">
+                <h3 style="margin:0">לוח בקרה מרכזי</h3>
+                <div id="filter-tag" style="background: rgba(255,255,255,0.1); padding: 5px 15px; border-radius: 8px; font-size: 0.9rem;"></div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>מזהה קטגוריה</th>
+                        <th>סוג מידע</th>
+                        <th>פעולה</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr id="row-only_a">
+                        <td><b>קטגוריה א'</b></td>
+                        <td>נתונים מקומיים</td>
+                        <td><button class="launch-btn" style="padding: 6px 12px; font-size: 0.8rem;" onclick="openDetails('only_a')">טען פירוט</button></td>
+                    </tr>
+                    <tr id="row-a_and_b">
+                        <td><b>משותף (א' + ב')</b></td>
+                        <td>סנכרון רב-מערכתי</td>
+                        <td><button class="launch-btn" style="padding: 6px 12px; font-size: 0.8rem;" onclick="openDetails('a_and_b')">טען פירוט</button></td>
+                    </tr>
+                    <tr id="row-only_b">
+                        <td><b>קטגוריה ב'</b></td>
+                        <td>מקורות חיצוניים</td>
+                        <td><button class="launch-btn" style="padding: 6px 12px; font-size: 0.8rem;" onclick="openDetails('only_b')">טען פירוט</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="detail-view" class="detail-container">
+            <div class="detail-header">
+                <h4 id="view-title" style="margin:0; color: var(--brand-deep)">תצוגת נתונים מפורטת</h4>
+                <button class="copy-badge" onclick="copyIframeTable()">העתק נתונים לאקסל 📋</button>
+            </div>
+            <div class="iframe-scroll-area">
+                <iframe id="dataFrame"></iframe>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // 1. נתוני הדגמה (ניתן להחליף ב-JSON שהופק מ-Pandas)
+    const datasets = {
+        only_a: {
+            "תת קטגוריה א'": [{ "מזהה": "A-100", "ערך": "מעולה" }, { "מזהה": "A-200", "ערך": "תקין" }],
+            "תת קטגוריה ב'": [],
+            "תת קטגוריה ג'": [{ "קוד": "G-9", "תיאור": "בדיקה" }]
+        },
+        a_and_b: {
+            "תת קטגוריה א'": [{ "סנכרון": "פעיל", "זמן": "2ms" }],
+            "תת קטגוריה ב'": [{ "סטטוס": "מוצלח" }],
+            "תת קטגוריה ג'": [{ "גרסה": "V3.1" }]
+        },
+        only_b: {
+            "תת קטגוריה א'": [],
+            "תת קטגוריה ב'": [{ "משתמש": "Admin", "גישה": "מלאה" }],
+            "תת קטגוריה ג'": []
+        }
+    };
+
+    let activeFilter = 10;
+
+    // פונקציית ההשקה
+    function launchApp() {
+        // משיכת הפרמטר
+        const params = new URLSearchParams(window.location.search);
+        activeFilter = params.get('blue_time') || 10;
+
+        document.getElementById('filter-tag').innerText = `מסנן פעיל (blue_time): ${activeFilter}`;
+        
+        // מעבר בין מסכים
+        document.getElementById('launch-screen').style.opacity = '0';
+        setTimeout(() => {
+            document.getElementById('launch-screen').style.display = 'none';
+            document.getElementById('main-app').style.display = 'block';
+            document.body.style.alignItems = 'flex-start'; // שינוי יישור התצוגה
+        }, 500);
+    }
+
+    function openDetails(key) {
+        // ויזואליזציה של שורה פעילה
+        document.querySelectorAll('tr').forEach(r => r.classList.remove('active-row'));
+        document.getElementById(`row-${key}`).classList.add('active-row');
+
+        const container = document.getElementById('detail-view');
+        const frame = document.getElementById('dataFrame');
+        const rawData = datasets[key];
+
+        // בניית הטבלאות רק אם יש בהן נתונים (א, ב, ג)
+        let htmlParts = "";
+        for (const [subName, rows] of Object.entries(rawData)) {
+            if (rows.length > 0) {
+                const headers = Object.keys(rows[0]).map(h => `<th>${h}</th>`).join('');
+                const body = rows.map(r => `<tr>${Object.values(r).map(v => `<td>${v}</td>`).join('')}</tr>`).join('');
+                
+                htmlParts += `
+                    <div style="margin-bottom: 30px;">
+                        <h4 style="color:#2563eb; border-right: 4px solid #2563eb; padding-right:10px; margin-bottom:10px;">${subName}</h4>
+                        <table style="width:100%; border-collapse:collapse; font-size:13px;">
+                            <thead><tr>${headers}</tr></thead>
+                            <tbody>${body}</tbody>
+                        </table>
+                    </div>`;
+            }
+        }
+
+        const fullIframeHtml = `
+            <html dir="rtl">
+            <head>
+                <style>
+                    body { font-family: sans-serif; padding: 10px; color: #334155; }
+                    table { border: 1px solid #e2e8f0; }
+                    th { background: #f8fafc; padding: 12px; text-align: right; border: 1px solid #e2e8f0; }
+                    td { padding: 12px; border: 1px solid #e2e8f0; text-align: right; }
+                </style>
+            </head>
+            <body>${htmlParts}</body>
+            </html>`;
+
+        container.style.display = 'block';
+        const doc = frame.contentWindow.document;
+        doc.open();
+        doc.write(fullIframeHtml);
+        doc.close();
+        
+        container.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // פונקציית העתקה חכמה לאקסל (מעתיקה רק את הנתונים)
+    function copyIframeTable() {
+        const frameDoc = document.getElementById('dataFrame').contentWindow.document;
+        const tables = frameDoc.querySelectorAll('table');
+        let clipboardText = "";
+
+        tables.forEach(table => {
+            const rows = Array.from(table.querySelectorAll('tr'));
+            clipboardText += rows.map(row => 
+                Array.from(row.querySelectorAll('th, td')).map(cell => cell.innerText).join('\t')
+            ).join('\n') + "\n\n";
+        });
+
+        navigator.clipboard.writeText(clipboardText).then(() => {
+            alert("הנתונים הועתקו! ניתן להדביק כעת באקסל.");
+        });
+    }
+</script>
+
+</body>
+</html>
