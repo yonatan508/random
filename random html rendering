@@ -3,297 +3,284 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>מערכת נתונים אחודה - גרסת השקה</title>
+    <title>Data Engine v3 | Unified Console</title>
     <style>
         :root {
-            --brand-deep: #0f172a;
-            --brand-primary: #3b82f6;
-            --brand-light: #eff6ff;
-            --border-subtle: #e2e8f0;
-            --success: #10b981;
-            --text-main: #334155;
+            --slate-50: #f8fafc;
+            --slate-100: #f1f5f9;
+            --slate-200: #e2e8f0;
+            --slate-400: #94a3b8;
+            --slate-600: #475569;
+            --slate-900: #0f172a;
+            --blue-600: #2563eb;
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background-color: #f1f5f9;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+            background-color: #ffffff;
+            color: var(--slate-900);
             margin: 0;
             display: flex;
             justify-content: center;
-            align-items: center;
             min-height: 100vh;
         }
 
-        /* סרגל גלילה מעוצב */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-
-        /* מסך ההשקה */
-        #launch-screen {
+        /* מסך השקה (Initial Screen) */
+        #launch-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             text-align: center;
-            background: white;
-            padding: 50px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .portal-card {
+            padding: 60px;
+            border: 1px solid var(--slate-100);
             border-radius: 24px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-            max-width: 400px;
-            width: 90%;
-            transition: opacity 0.5s ease;
-        }
-
-        .launch-btn {
-            background: var(--brand-primary);
-            color: white;
-            border: none;
-            padding: 16px 32px;
-            font-size: 1.1rem;
-            font-weight: 700;
-            border-radius: 12px;
-            cursor: pointer;
-            box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3);
-            transition: all 0.2s;
-        }
-
-        .launch-btn:hover { background: #2563eb; transform: translateY(-2px); }
-
-        /* תוכן האפליקציה המרכזי */
-        #main-app {
-            display: none; /* מוסתר בהתחלה */
-            width: 100%;
-            max-width: 1000px;
-            padding: 20px;
-            animation: fadeIn 0.6s ease-out;
-        }
-
-        .master-card {
-            background: white;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            border: 1px solid var(--border-subtle);
-            margin-bottom: 24px;
-        }
-
-        .app-header {
-            background: var(--brand-deep);
-            color: white;
-            padding: 20px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        table { width: 100%; border-collapse: collapse; background: white; }
-        th { background: #f8fafc; padding: 16px; text-align: right; border-bottom: 2px solid var(--brand-light); color: var(--brand-deep); font-size: 0.9rem; }
-        td { padding: 16px; border-bottom: 1px solid var(--border-subtle); border-left: 1px solid #f8fafc; }
-        
-        tr.active-row { 
-            background-color: var(--brand-light); 
-            border-right: 5px solid var(--brand-primary); 
-        }
-
-        /* חלון הנתונים המתרחב */
-        .detail-container {
-            display: none;
-            background: white;
-            border-radius: 16px;
-            border: 1px solid var(--border-subtle);
-            box-shadow: 0 10px 15px rgba(0,0,0,0.1);
-            resize: vertical; /* שינוי גודל ידני */
-            overflow: hidden;
-            min-height: 300px;
-        }
-
-        .detail-header {
-            padding: 16px 24px;
             background: #fff;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
 
-        .iframe-scroll-area {
-            height: calc(100% - 60px);
-            overflow: auto;
-        }
+        /* Main App Layout */
+        #main-app { display: none; width: 100%; max-width: 1000px; padding: 60px 20px; animation: slideUp 0.4s ease; }
 
-        iframe { width: 100%; height: 600px; border: none; }
+        .meta-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+        .session-badge { font-size: 11px; background: var(--slate-50); padding: 4px 12px; border-radius: 20px; color: var(--slate-400); font-family: monospace; }
 
-        .copy-badge {
-            background: var(--success);
+        /* Tables Design */
+        table { width: 100%; border-collapse: collapse; }
+        th { padding: 16px; text-align: right; font-size: 12px; font-weight: 600; color: var(--slate-400); border-bottom: 1px solid var(--slate-100); text-transform: uppercase; }
+        td { padding: 18px 16px; border-bottom: 1px solid var(--slate-50); font-size: 14px; transition: var(--transition); }
+
+        .active-row { background-color: var(--slate-50); box-shadow: inset 4px 0 0 var(--blue-600); }
+
+        /* Buttons */
+        .btn-main {
+            background: var(--slate-900);
             color: white;
-            padding: 8px 16px;
-            border-radius: 8px;
             border: none;
+            padding: 14px 32px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
             cursor: pointer;
-            font-weight: 600;
+            transition: var(--transition);
+        }
+        .btn-main:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-main:disabled { background: var(--slate-100); color: var(--slate-400); cursor: not-allowed; }
+
+        /* Iframe Integration */
+        #detail-wrapper {
+            margin-top: 40px;
+            width: 100%;
+            border: 1px solid var(--slate-200);
+            border-radius: 12px;
+            overflow: hidden;
+            display: none;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        iframe { width: 100%; border: none; display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <div id="launch-screen">
-        <div style="font-size: 3rem; margin-bottom: 20px;">📊</div>
-        <h2 style="color: var(--brand-deep)">מערכת ניתוח נתונים</h2>
-        <p style="color: #64748b; margin-bottom: 30px;">לחץ על הכפתור כדי לטעון את מסדי הנתונים המסוננים.</p>
-        <button class="launch-btn" onclick="launchApp()">הפעל תוכנית</button>
+<div id="launch-container">
+    <div class="portal-card">
+        <h1 style="margin: 0 0 8px 0; font-weight: 600;">Data Engine Pro</h1>
+        <p style="color: var(--slate-600); margin-bottom: 32px;">Unified Data Management Console</p>
+        <button class="btn-main" onclick="startConsole()">Launch Interface</button>
+    </div>
+</div>
+
+<div id="main-app">
+    <div class="meta-header">
+        <h2 style="margin:0; font-weight: 600; font-size: 20px;">Segments Overview</h2>
+        <span class="session-badge" id="blue-call-display"></span>
     </div>
 
-    <div id="main-app">
-        <div class="master-card">
-            <div class="app-header">
-                <h3 style="margin:0">לוח בקרה מרכזי</h3>
-                <div id="filter-tag" style="background: rgba(255,255,255,0.1); padding: 5px 15px; border-radius: 8px; font-size: 0.9rem;"></div>
-            </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>מזהה קטגוריה</th>
-                        <th>סוג מידע</th>
-                        <th>פעולה</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr id="row-only_a">
-                        <td><b>קטגוריה א'</b></td>
-                        <td>נתונים מקומיים</td>
-                        <td><button class="launch-btn" style="padding: 6px 12px; font-size: 0.8rem;" onclick="openDetails('only_a')">טען פירוט</button></td>
-                    </tr>
-                    <tr id="row-a_and_b">
-                        <td><b>משותף (א' + ב')</b></td>
-                        <td>סנכרון רב-מערכתי</td>
-                        <td><button class="launch-btn" style="padding: 6px 12px; font-size: 0.8rem;" onclick="openDetails('a_and_b')">טען פירוט</button></td>
-                    </tr>
-                    <tr id="row-only_b">
-                        <td><b>קטגוריה ב'</b></td>
-                        <td>מקורות חיצוניים</td>
-                        <td><button class="launch-btn" style="padding: 6px 12px; font-size: 0.8rem;" onclick="openDetails('only_b')">טען פירוט</button></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+    <table class="master-table">
+        <thead>
+            <tr>
+                <th>Segment Name</th>
+                <th>Integrity</th>
+                <th style="width: 120px; text-align: left;">Action</th>
+            </tr>
+        </thead>
+        <tbody id="master-body"></tbody>
+    </table>
 
-        <div id="detail-view" class="detail-container">
-            <div class="detail-header">
-                <h4 id="view-title" style="margin:0; color: var(--brand-deep)">תצוגת נתונים מפורטת</h4>
-                <button class="copy-badge" onclick="copyIframeTable()">העתק נתונים לאקסל 📋</button>
-            </div>
-            <div class="iframe-scroll-area">
-                <iframe id="dataFrame"></iframe>
-            </div>
-        </div>
+    <div id="detail-wrapper">
+        <iframe id="dataFrame" scrolling="no"></iframe>
     </div>
+</div>
 
 <script>
-    // 1. נתוני הדגמה (ניתן להחליף ב-JSON שהופק מ-Pandas)
-    const datasets = {
-        only_a: {
-            "תת קטגוריה א'": [{ "מזהה": "A-100", "ערך": "מעולה" }, { "מזהה": "A-200", "ערך": "תקין" }],
-            "תת קטגוריה ב'": [],
-            "תת קטגוריה ג'": [{ "קוד": "G-9", "תיאור": "בדיקה" }]
+    // הגדרת משתנה ה-blue_call
+    const blue_call = new URLSearchParams(window.location.search).get('blue_time') || "SYS-X-99";
+
+    // נתונים הכוללים קטגוריות ריקות ועמודות שונות
+    let datasets = {
+        "Production_Line_A": {
+            "חומרה": [{ "Part": "CPU-01", "Temp": "42°C" }, { "Part": "GPU-05", "Temp": "65°C" }],
+            "תוכנה": [], // ריקה
+            "לוגיסטיקה": [{ "Order": "TX-90", "Status": "Shipped", "ETA": "2 Days" }]
         },
-        a_and_b: {
-            "תת קטגוריה א'": [{ "סנכרון": "פעיל", "זמן": "2ms" }],
-            "תת קטגוריה ב'": [{ "סטטוס": "מוצלח" }],
-            "תת קטגוריה ג'": [{ "גרסה": "V3.1" }]
+        "External_Storage": {
+            "חומרה": [], // ריקה
+            "תוכנה": [{ "Service": "Nginx", "Uptime": "99.9%" }],
+            "לוגיסטיקה": [] // ריקה
         },
-        only_b: {
-            "תת קטגוריה א'": [],
-            "תת קטגוריה ב'": [{ "משתמש": "Admin", "גישה": "מלאה" }],
-            "תת קטגוריה ג'": []
+        "Empty_Node": {
+            "חומרה": [], "תוכנה": [], "לוגיסטיקה": []
         }
     };
-
-    let activeFilter = 10;
-
-    // פונקציית ההשקה
-    function launchApp() {
-        // משיכת הפרמטר
-        const params = new URLSearchParams(window.location.search);
-        activeFilter = params.get('blue_time') || 10;
-
-        document.getElementById('filter-tag').innerText = `מסנן פעיל (blue_time): ${activeFilter}`;
-        
-        // מעבר בין מסכים
-        document.getElementById('launch-screen').style.opacity = '0';
-        setTimeout(() => {
-            document.getElementById('launch-screen').style.display = 'none';
-            document.getElementById('main-app').style.display = 'block';
-            document.body.style.alignItems = 'flex-start'; // שינוי יישור התצוגה
-        }, 500);
+    
+    
+    /**
+     * Filters the data by a specific key and value.
+     * @param {Array} data - The array of objects (the "DataFrame").
+     * @param {string} key - The column name.
+     * @param {any} value - The element to filter by.
+     * @returns {Array} - The filtered subset.
+     */
+    const filterByElement = (data, key, value) => {
+      return data.filter(row => row[key] === value);
+    };
+    
+    dataset = filterByElement(datasets, 'blue_call', blue_call);
+    
+    function startConsole() {
+        document.getElementById('blue-call-display').innerText = `CALL_REF: ${blue_call}`;
+        renderMaster();
+        document.getElementById('launch-container').style.display = 'none';
+        document.getElementById('main-app').style.display = 'block';
     }
 
-    function openDetails(key) {
-        // ויזואליזציה של שורה פעילה
+    function renderMaster() {
+        const tbody = document.getElementById('master-body');
+        tbody.innerHTML = Object.entries(datasets).map(([key, data]) => {
+            const hasData = Object.values(data).some(arr => arr.length > 0);
+            return `
+                <tr id="row-${key}">
+                    <td><span style="font-weight:600">${key.replace(/_/g, ' ')}</span></td>
+                    <td><span style="color:${hasData ? '#10b981' : '#94a3b8'}">${hasData ? '● Verified' : '○ Empty'}</span></td>
+                    <td style="text-align: left;">
+                        ${hasData ? 
+                            `<button class="btn-main" style="padding: 6px 16px; font-size: 11px;" onclick="loadDetail('${key}')">View Data</button>` : 
+                            `<span style="color:var(--slate-400); font-size:12px;">אין ערכים</span>`}
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function loadDetail(key) {
         document.querySelectorAll('tr').forEach(r => r.classList.remove('active-row'));
         document.getElementById(`row-${key}`).classList.add('active-row');
 
-        const container = document.getElementById('detail-view');
-        const frame = document.getElementById('dataFrame');
-        const rawData = datasets[key];
+        const source = datasets[key];
+        let sections = "";
 
-        // בניית הטבלאות רק אם יש בהן נתונים (א, ב, ג)
-        let htmlParts = "";
-        for (const [subName, rows] of Object.entries(rawData)) {
-            if (rows.length > 0) {
-                const headers = Object.keys(rows[0]).map(h => `<th>${h}</th>`).join('');
-                const body = rows.map(r => `<tr>${Object.values(r).map(v => `<td>${v}</td>`).join('')}</tr>`).join('');
-                
-                htmlParts += `
-                    <div style="margin-bottom: 30px;">
-                        <h4 style="color:#2563eb; border-right: 4px solid #2563eb; padding-right:10px; margin-bottom:10px;">${subName}</h4>
-                        <table style="width:100%; border-collapse:collapse; font-size:13px;">
-                            <thead><tr>${headers}</tr></thead>
-                            <tbody>${body}</tbody>
-                        </table>
-                    </div>`;
-            }
+        for (const [catName, rows] of Object.entries(source)) {
+            const isEmpty = rows.length === 0;
+            const headers = !isEmpty ? Object.keys(rows[0]) : [];
+
+            sections += `
+                <div class="cat-block">
+                    <table class="detail-table">
+                        ${!isEmpty ? `
+                            <thead>
+                                <tr>
+                                    <th class="cat-label" rowspan="${rows.length + 1}" onclick="toggleCat('${catName}')">${catName}</th>
+                                    ${headers.map(h => `<th>${h}</th>`).join('')}
+                                </tr>
+                            </thead>
+                            <tbody id="group-${catName}">
+                                ${rows.map(r => `<tr>${Object.values(r).map(v => `<td>${v}</td>`).join('')}</tr>`).join('')}
+                            </tbody>
+                        ` : `
+                            <tr>
+                                <td class="cat-label empty">${catName}</td>
+                                <td class="empty-msg">אין ערכים זמינים</td>
+                            </tr>
+                        `}
+                    </table>
+                </div>
+            `;
         }
 
-        const fullIframeHtml = `
+        const iframeHtml = `
             <html dir="rtl">
             <head>
                 <style>
-                    body { font-family: sans-serif; padding: 10px; color: #334155; }
-                    table { border: 1px solid #e2e8f0; }
-                    th { background: #f8fafc; padding: 12px; text-align: right; border: 1px solid #e2e8f0; }
-                    td { padding: 12px; border: 1px solid #e2e8f0; text-align: right; }
+                    body { font-family: sans-serif; margin: 0; padding: 0; background: #fff; overflow: hidden; }
+                    .header { padding: 20px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; }
+                    .detail-table { width: 100%; border-collapse: collapse; }
+                    th { text-align: right; font-size: 11px; color: #94a3b8; padding: 12px 16px; background: #fafafa; border-bottom: 1px solid #f1f5f9; }
+                    td { padding: 14px 16px; font-size: 13px; border-bottom: 1px solid #f8fafc; }
+                    .cat-label { 
+                        width: 100px; color: #2563eb; font-weight: 600; cursor: pointer; text-align: center;
+                        border-left: 1px solid #f1f5f9; border-right: 3px solid #2563eb; transition: background 0.2s;
+                    }
+                    .cat-label:hover { background: #f8fafc; }
+                    .cat-label.empty { color: #cbd5e1; border-right-color: #e2e8f0; cursor: default; }
+                    .empty-msg { color: #94a3b8; font-style: italic; font-size: 12px; padding: 20px; text-align: center; }
+                    .hidden { display: none; }
                 </style>
+                <script>
+                    function toggleCat(id) {
+                        const el = document.getElementById('group-' + id);
+                        if(el) el.classList.toggle('hidden');
+                        window.parent.postMessage({ height: document.body.scrollHeight }, '*');
+                    }
+                    window.onload = () => window.parent.postMessage({ height: document.body.scrollHeight }, '*');
+                <\/script>
             </head>
-            <body>${htmlParts}</body>
-            </html>`;
+            <body>
+                <div class="header">
+                    <span style="font-size:13px; font-weight:600; color:#475569">Detailed Breakdown</span>
+                    <button style="background:#f1f5f9; border:none; padding:6px 12px; border-radius:4px; font-size:11px; cursor:pointer;" onclick="parent.copyToExcel()">Copy Table</button>
+                </div>
+                ${sections}
+            </body>
+            </html>
+        `;
 
-        container.style.display = 'block';
+        const wrapper = document.getElementById('detail-wrapper');
+        const frame = document.getElementById('dataFrame');
+        wrapper.style.display = 'block';
+        
         const doc = frame.contentWindow.document;
         doc.open();
-        doc.write(fullIframeHtml);
+        doc.write(iframeHtml);
         doc.close();
-        
-        container.scrollIntoView({ behavior: 'smooth' });
     }
 
-    // פונקציית העתקה חכמה לאקסל (מעתיקה רק את הנתונים)
-    function copyIframeTable() {
-        const frameDoc = document.getElementById('dataFrame').contentWindow.document;
-        const tables = frameDoc.querySelectorAll('table');
-        let clipboardText = "";
+    // הקשבה להודעות גובה מה-Iframe
+    window.addEventListener('message', function(e) {
+        if (e.data.height) {
+            document.getElementById('dataFrame').style.height = (e.data.height + 2) + 'px';
+        }
+    });
 
-        tables.forEach(table => {
-            const rows = Array.from(table.querySelectorAll('tr'));
-            clipboardText += rows.map(row => 
-                Array.from(row.querySelectorAll('th, td')).map(cell => cell.innerText).join('\t')
-            ).join('\n') + "\n\n";
+    function copyToExcel() {
+        const frame = document.getElementById('dataFrame').contentWindow.document;
+        const tables = frame.querySelectorAll('table');
+        let text = "";
+        tables.forEach(t => {
+            t.querySelectorAll('tr').forEach(r => {
+                if (!r.classList.contains('hidden')) {
+                    text += Array.from(r.querySelectorAll('th, td')).map(c => c.innerText.trim()).join('\t') + "\n";
+                }
+            });
         });
-
-        navigator.clipboard.writeText(clipboardText).then(() => {
-            alert("הנתונים הועתקו! ניתן להדביק כעת באקסל.");
-        });
+        navigator.clipboard.writeText(text).then(() => alert("Copied to clipboard."));
     }
 </script>
 
