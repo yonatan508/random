@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>לוג'יקול | ניהול ניתובים</title>
+    <title> | ניהול ניתובים</title>
     <style>
         /* --- CSS REMAINS EXACTLY THE SAME AS BEFORE --- */
         :root {
@@ -96,11 +96,11 @@
 
 <div class="brand-container" onclick="goHome()">
     <div class="logo-box">LC</div>
-    <h1>לוג'יקול</h1>
+    <h1>title</h1>
 </div>
 
 <div class="search-wrapper">
-    <input type="tel" id="phoneInput" placeholder="הקלידו מספר טלפון לחיפוש..." autocomplete="off">
+    <input type="tel" id="phoneInput" placeholder="הקלידו title לחיפוש..." autocomplete="off">
 </div>
 
 <div id="results-area"></div>
@@ -123,9 +123,9 @@
     // DB Structure Update: Now storing Version numbers!
     // This represents the "Single Source of Truth" on the server
     const SERVER_DB_SOURCE = {
-        "0500000000": { active: [1, 3], version: 1 }, 
-        "0521234567": { active: [4], version: 5 },
-        "0549876543": { active: [1, 2, 4], version: 2 }
+        "xxxx": { active: [1, 3], version: 1 }, 
+        "yyyy": { active: [4], version: 5 },
+        "zzzz": { active: [1, 2, 4], version: 2 }
     };
 
     // --- 2. Cache Management System ---
@@ -147,13 +147,13 @@
         // We still load from cache for speed, but ideally, we should 
         // silently re-fetch in background to check for updates.
         // For this demo, we'll keep the simple "load if empty" logic.
-        if (!localStorage.getItem('localPhoneDB')) {
+        if (!localStorage.getItem('DB')) {
             await syncCacheWithServer();
         }
     })();
 
     function getFromCache() {
-        return JSON.parse(localStorage.getItem('localPhoneDB') || '{}');
+        return JSON.parse(localStorage.getItem('DB') || '{}');
     }
 
     function saveToCache(data) {
